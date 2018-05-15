@@ -58,74 +58,7 @@ public class ListaTessere implements Serializable
 		}
 		return risultato;
 	}
-	
-	public void inserisciInTesta(Tessera persona)
-	{
-		Nodo p=creaNodo(persona,head);
-		head=p;
-		elementi++;
-	}
-	
-	public void inserisciInCoda(Tessera persona) throws TesseraException
-	{
-		if (elementi==0)
-		{
-			inserisciInTesta(persona);
-			return;
-		}
 		
-		Nodo pn=creaNodo(persona,null);
-		Nodo p=getLinkPosizione(elementi);
-		p.setLink(pn);
-		elementi++;
-	}
-
-	public String visita(int posizione) throws TesseraException
-	{
-		if(elementi==0)
-			throw new TesseraException("Lista vuota");
-		if (posizione<=0 || posizione>elementi)
-			throw new TesseraException("Posizione non valida");
-		
-		Nodo p=getLinkPosizione(posizione);
-		return (p.getInfo().toString());
-	}
-	
-	public Tessera getInfo(int posizione) throws TesseraException
-	{
-		if(elementi==0)
-			throw new TesseraException("Lista vuota");
-		if (posizione<=0 || posizione>elementi)
-			throw new TesseraException("Posizione non valida");
-		
-		
-		Nodo p=getLinkPosizione(posizione);
-		Tessera i=new Tessera(p.getInfo());
-		return i;
-	}
-	
-	public void salvaTessera(String nomeFile) throws IOException
-	{
-		FileOutputStream file=new FileOutputStream(nomeFile);
-		ObjectOutputStream writer=new ObjectOutputStream(file);
-		
-		writer.writeObject(this);
-		writer.flush();
-		file.close();
-	}
-	
-	public Tessera caricaTessere(String nomeFile) throws IOException, ClassNotFoundException
-	{
-		FileInputStream file=new FileInputStream(nomeFile);
-		ObjectInputStream reader= new ObjectInputStream(file);
-		
-		Tessera f;
-		f=(Tessera)reader.readObject();
-		
-		file.close();
-		return f;
-	}
-	
 	public Tessera getTessera (int posizione) throws TesseraException
 	{
 		if (elementi==0)
@@ -138,42 +71,18 @@ public class ListaTessere implements Serializable
 		return p.getInfo();		
 	}
 	
-	public void inserisciTessera(Tessera tessera)
+	public void inserisciTessera(Tessera tessera) throws IOException, TesseraException, FileException
 	{
 		Nodo p=creaNodo(tessera, head);
 		head=p;
 		elementi++;
+		System.out.println("La quota annule da pagare è di "+this.getTessera(1).getQuotaAnnuale()+" €");
 		
-		try 
-		{
-			esportaCSV("tessere.txt");
-		} 
-		catch (IOException e) 
-		{
-			System.out.println("File non trovato");
-		} 
-		catch (TesseraException e) 
-		{
-			e.toString();
-		}
-		catch(FileException e)
-		{
-			e.toString();
-		}
+		esportaTessereCSV("tessere.txt");
 		
 	}
 	
-	public void salvaLista(String nomeFile) throws IOException
-	{
-		FileOutputStream file =new FileOutputStream(nomeFile);
-		ObjectOutputStream writer=new ObjectOutputStream(file);
-		writer.writeObject(this);
-		writer.flush();
-		file.close();
-	}
-	
-	
-	public void esportaCSV (String nomeFile) throws IOException, TesseraException, FileException
+	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException
 	{
 		TextFile file= new TextFile (nomeFile,'W');
 		String personaCSV;
@@ -189,17 +98,114 @@ public class ListaTessere implements Serializable
 		file.closeFile();
 	}
 	
-	public void esportaCSVeliminati (String nomeFile, int posizione) throws IOException, TesseraException, FileException
+	public void eliminaInTesta(int posizione) throws TesseraException, IOException, FileException
+	{
+		if (elementi==0)
+			throw new TesseraException("Lista vuota");
+		head=head.getLink();
+		elementi--;
+		
+		try
+		{
+			esportaEliminatiCSV("eliminati.txt",posizione);
+		}
+		catch (IOException e) 
+		{
+			System.out.println("File non trovato");
+		}
+	}
+	
+	public void eliminaInCoda(int posizione) throws TesseraException, FileException, IOException
+	{
+		if (elementi==0)
+			throw new TesseraException("Lista vuota");
+		if (elementi==1)
+		{
+			eliminaInTesta(posizione);
+			return;
+		}
+		
+		Nodo p=getLinkPosizione(elementi-1);
+		p.setLink(null);
+		elementi--;
+		
+		try
+		{
+			esportaEliminatiCSV("eliminati.txt",posizione);
+		}
+		catch (IOException e) 
+		{
+			System.out.println("File non trovato");
+		}
+	}
+	
+	public void eliminaInPosizione(int posizione) throws TesseraException, IOException, FileException
+	{
+		if (elementi==0)
+			throw new TesseraException("Lista vuota");
+		
+		if (posizione<=0 || posizione>elementi)
+			throw new TesseraException("Posizione non valida");
+	
+		if (posizione==1)
+		{
+			eliminaInTesta(posizione);
+			return;
+		}
+		if (posizione==elementi)
+		{
+			eliminaInCoda(posizione);
+			return;
+		}
+		
+		Nodo p;
+		p=getLinkPosizione(posizione);
+		Nodo precedente=getLinkPosizione(posizione-1);
+		precedente.setLink(p.getLink());
+		elementi--;
+		try
+		{
+			esportaEliminatiCSV("eliminati.txt",posizione);
+		}
+		catch (IOException e) 
+		{
+			System.out.println("File non trovato");
+		}
+	}
+	
+	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
 	{
 		TextFile file= new TextFile (nomeFile,'W');
-		String personaCSV;
+		String tesseratoCSV;
 		Tessera persona;
 		
 			persona=getTessera(posizione);
-			personaCSV=persona.getMatricola()+";"+persona.getNome()+";"+persona.getCognome()+";"
+			tesseratoCSV=persona.getMatricola()+";"+persona.getNome()+";"+persona.getCognome()+";"
 						+persona.getCodiceFiscale()+";"+persona.getDataNascita()+";"+persona.getInfo();
-			file.toFile(personaCSV);
+			file.toFile(tesseratoCSV);
 		
 		file.closeFile();
+	}
+	
+	//Serializzazione e deserializzazione
+	public void salvaLista(String nomeFile) throws IOException
+	{
+		FileOutputStream file =new FileOutputStream(nomeFile);
+		ObjectOutputStream writer=new ObjectOutputStream(file);
+		writer.writeObject(this);
+		writer.flush();
+		file.close();
+	}
+	
+	public ListaTessere caricaLista(String nomeFile) throws IOException, ClassNotFoundException
+	{
+		FileInputStream file=new FileInputStream(nomeFile);
+		ObjectInputStream reader= new ObjectInputStream(file);
+		
+		ListaTessere lista;
+		
+		lista=(ListaTessere)(reader.readObject());
+		file.close();
+		return lista;
 	}
 }

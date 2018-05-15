@@ -10,8 +10,7 @@ public class Tessera implements Serializable
 	private String codiceFiscale;
 	private LocalDate dataNascita;
 	private String info;
-	final static int PREZZO_NUOVA_TESSERA=50;
-	final static int PREZZO_RINNOVO_TESSERA=30;
+	private static int quotaAnnuale=50;
 		
 	//costruttori
 	public Tessera(int matricola, String nome, String cognome, String codiceFiscale, LocalDate dataNascita, String info)
@@ -110,6 +109,16 @@ public class Tessera implements Serializable
 	public void setInfo(String info) 
 	{
 		this.info = info;
+	}
+	
+	public static int getQuotaAnnuale() 
+	{
+		return quotaAnnuale;
+	}
+	
+	public static void setQuotaAnnuale(int quota) 
+	{
+		Tessera.quotaAnnuale = quota;
 	}
 	
 	public String toString()
