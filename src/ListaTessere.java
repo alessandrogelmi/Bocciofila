@@ -86,13 +86,13 @@ public class ListaTessere implements Serializable
 	{
 		TextFile file= new TextFile (nomeFile,'W');
 		String personaCSV;
-		Tessera persona;
+		Tessera tessera;
 		
 		for (int i = 1; i <= getElementi(); i++) 
 		{
-			persona=getTessera(i);
-			personaCSV=persona.getMatricola()+";"+persona.getNome()+";"+persona.getCognome()+";"
-						+persona.getCodiceFiscale()+";"+persona.getDataNascita()+";"+persona.getInfo();
+			tessera=getTessera(i);
+			personaCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"
+						+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
 			file.toFile(personaCSV);
 		}
 		file.closeFile();
@@ -104,15 +104,8 @@ public class ListaTessere implements Serializable
 			throw new TesseraException("Lista vuota");
 		head=head.getLink();
 		elementi--;
+		esportaEliminatiCSV("eliminati.txt",posizione);
 		
-		try
-		{
-			esportaEliminatiCSV("eliminati.txt",posizione);
-		}
-		catch (IOException e) 
-		{
-			System.out.println("File non trovato");
-		}
 	}
 	
 	public void eliminaInCoda(int posizione) throws TesseraException, FileException, IOException
@@ -128,30 +121,24 @@ public class ListaTessere implements Serializable
 		Nodo p=getLinkPosizione(elementi-1);
 		p.setLink(null);
 		elementi--;
-		
-		try
-		{
-			esportaEliminatiCSV("eliminati.txt",posizione);
-		}
-		catch (IOException e) 
-		{
-			System.out.println("File non trovato");
-		}
+		esportaEliminatiCSV("eliminati.txt",posizione);
+
 	}
 	
 	public void eliminaInPosizione(int posizione) throws TesseraException, IOException, FileException
 	{
-		if (elementi==0)
-			throw new TesseraException("Lista vuota");
-		
 		if (posizione<=0 || posizione>elementi)
 			throw new TesseraException("Posizione non valida");
+		
+		if (elementi==0)
+			throw new TesseraException("Lista vuota");
 	
 		if (posizione==1)
 		{
 			eliminaInTesta(posizione);
 			return;
 		}
+		
 		if (posizione==elementi)
 		{
 			eliminaInCoda(posizione);
@@ -163,25 +150,18 @@ public class ListaTessere implements Serializable
 		Nodo precedente=getLinkPosizione(posizione-1);
 		precedente.setLink(p.getLink());
 		elementi--;
-		try
-		{
-			esportaEliminatiCSV("eliminati.txt",posizione);
-		}
-		catch (IOException e) 
-		{
-			System.out.println("File non trovato");
-		}
+		esportaEliminatiCSV("eliminati.txt",posizione);
 	}
 	
 	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
 	{
 		TextFile file= new TextFile (nomeFile,'W');
 		String tesseratoCSV;
-		Tessera persona;
+		Tessera tessera;
 		
-			persona=getTessera(posizione);
-			tesseratoCSV=persona.getMatricola()+";"+persona.getNome()+";"+persona.getCognome()+";"
-						+persona.getCodiceFiscale()+";"+persona.getDataNascita()+";"+persona.getInfo();
+			tessera=getTessera(posizione);
+			tesseratoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"
+			+tessera.getInfo();
 			file.toFile(tesseratoCSV);
 		
 		file.closeFile();

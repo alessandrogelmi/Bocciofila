@@ -3,30 +3,28 @@ import java.time.LocalDate;
 
 public class MainClass
 {
-
 	public static void main(String[] args)
 	{
-		String[] vociMenu= {"0 --> ESCI","1 --> Inserisci tessera", "2 --> Elimina Tessera", "3 --> Visualizza tessere in ordine alfabetico",
-				"4 --> Visualizza tessere in ordine di anzianità", "5 --> Visulizza dati tesserato", "6 --> Modifica quota annuale di tesseramento"};
-		Menu menuPrincipale=new Menu("Menu Principale",vociMenu);
-		ConsoleInput tastiera= new ConsoleInput();
-		
-		
 		ListaTessere listaTessere=new ListaTessere();
-		
 		try 
 		{
-			listaTessere=listaTessere.caricaLista("C:\\Users\\Supermedia\\Documents\\Scuola\\Informatica\\OOP\\ProgettiJava\\Bocciofila\\FileBIN\\tessere.bin");
+			listaTessere=listaTessere.caricaLista("tessere.bin");
 			System.out.println("Caricamento Completato");
 		} 
 		catch (ClassNotFoundException e) 
 		{
-			System.out.println("Impossibile caricare dal file perchè la classe Tessera");
+			System.out.println("Impossibile caricare oggetti di tipo Tessera");
 		}
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
+		
+		String[] vociMenu= {"0 --> ESCI","1 --> Inserisci tessera", "2 --> Elimina Tessera", "3 --> Visualizza tessere in ordine alfabetico",
+				"4 --> Visualizza tessere in ordine di anzianità", "5 --> Visulizza dati tesserato", "6 --> Modifica quota annuale di tesseramento",
+				"7 --> Visualizza tessere presenti"};
+		Menu menuPrincipale=new Menu("Menu Principale",vociMenu);
+		ConsoleInput tastiera= new ConsoleInput();
 		
 		int sceltaMenu=0;
 		
@@ -37,6 +35,7 @@ public class MainClass
 			switch (sceltaMenu) 
 			{
 			case 1:
+			{
 				try 
 				{
 					int anno,m,g;
@@ -62,8 +61,7 @@ public class MainClass
 					
 					listaTessere.inserisciTessera(t);
 					System.out.println("Tessera aggiunta con successo");
-					listaTessere.salvaLista("C:\\Users\\Supermedia\\Documents\\Scuola\\Informatica\\OOP\\ProgettiJava\\Bocciofila\\FileBIN\\tessere.bin");
-					break;
+					listaTessere.salvaLista("tessere.bin");
 				} 
 				catch (IOException e)
 				{
@@ -77,8 +75,11 @@ public class MainClass
 				{
 					System.out.println("Impossibile scrivere sul file");
 				}
-				
+				break;
+			}
+			
 			case 2:
+			{
 				int x;
 				System.out.println("Inserisci la matricola della tessere da eliminare");
 				ConsoleInput y=new ConsoleInput();
@@ -106,12 +107,14 @@ public class MainClass
 				}
 				catch (TesseraException e)
 				{
-					System.out.println(e.toString());
+					System.out.println("Tessera non trovata");
 				} 
 				catch (FileException e) 
 				{
 					System.out.println("Impossibile leggere dal file");
 				}
+				break;
+			}
 				
 			/*case 6:
 				int nuovaQuota;
@@ -138,14 +141,12 @@ public class MainClass
 					System.out.println("File non trovato");
 				}*/
 				
+			case 7:
+				System.out.println(listaTessere.toString());
+				
 			case 0:
 				break;
-			case 4:
-				System.out.println(listaTessere.toString());
 			
-			default:
-				System.out.println("Inserimento non valido");
-				break;
 			}
 			
 		} while (sceltaMenu!=0);
