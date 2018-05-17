@@ -124,7 +124,7 @@ public class Tessera implements Serializable
 	public String toString()
 	{
 		return ("Matricola: "+getMatricola()+"; Nome: "+getNome()+"; Cognome: "+getCognome()+"; Data Nascita: "+getDataNascita()+
-		"; Codice Fiscale"+getCodiceFiscale()+"; Info: "+getInfo());
+		"; Codice Fiscale: "+getCodiceFiscale()+"; Info: "+getInfo());
 	}
 		
 }

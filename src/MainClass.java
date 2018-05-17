@@ -1,13 +1,16 @@
 import java.io.IOException;
 import java.time.LocalDate;
 
+import javax.naming.directory.ModificationItem;
+
 public class MainClass
 {
 	public static void main(String[] args)
 	{
 		ListaTessere listaTessere=new ListaTessere();
-		try 
+	try 
 		{
+			//listaTessere.salvaLista("tessere.bin");
 			listaTessere=listaTessere.caricaLista("tessere.bin");
 			System.out.println("Caricamento Completato");
 		} 
@@ -19,7 +22,6 @@ public class MainClass
 		{
 			e.printStackTrace();
 		}
-		
 		String[] vociMenu= {"0 --> ESCI","1 --> Inserisci tessera", "2 --> Elimina Tessera", "3 --> Visualizza tessere in ordine alfabetico",
 				"4 --> Visualizza tessere in ordine di anzianità", "5 --> Visulizza dati tesserato", "6 --> Modifica quota annuale di tesseramento",
 				"7 --> Visualizza tessere presenti"};
@@ -39,6 +41,7 @@ public class MainClass
 				try 
 				{
 					int anno,m,g;
+					boolean isElim = false;
 					Tessera t=new Tessera();
 					System.out.print("Inserisci la matricola: ");
 					t.setMatricola(tastiera.readInt());
@@ -57,12 +60,42 @@ public class MainClass
 					t.setDataNascita(LocalDate.of(anno,m,g));
 					System.out.print("Inserisci l'info (nuova/rinnovo): ");
 					t.setInfo(tastiera.readString());
-
+					System.out.println("La quota annule da pagare è di "+t.getQuotaAnnuale()+" €");
 					
-					listaTessere.inserisciTessera(t);
-					System.out.println("Tessera aggiunta con successo");
-					listaTessere.salvaLista("tessere.bin");
-				} 
+					
+					String[] elim = null;
+					try 
+					{
+						elim = listaTessere.caricaCSV("eliminati.txt");
+						
+						for (int i = 0; i < elim.length; i++) 
+						{
+							if(elim[i]!=null)
+							{
+								if(elim[i].compareTo(t.getCodiceFiscale())==0)
+								{
+									System.out.println("L'utente inserito è gia negli eliminati.");
+									isElim=true;
+									break;
+								}
+							}
+								
+						}
+					} 
+					catch (EccezioneTextFileEOF e)
+					{
+						
+					}
+					
+					if (isElim==false) 
+					{
+						listaTessere.inserisciTessera(t);
+						System.out.println("Tessera aggiunta con successo");
+						listaTessere.salvaLista("tessere.bin");
+					}
+					
+				}
+				 
 				catch (IOException e)
 				{
 					System.out.println("File non trovato");
@@ -74,28 +107,24 @@ public class MainClass
 				catch (FileException e)
 				{
 					System.out.println("Impossibile scrivere sul file");
-				}
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 				break;
 			}
-			
 			case 2:
 			{
 				int x;
-				System.out.println("Inserisci la matricola della tessere da eliminare");
+				System.out.print("Inserisci la matricola della tessere da eliminare: ");
 				ConsoleInput y=new ConsoleInput();
 	
 				try 
 				{
 					x=y.readInt();
-					for (int i = 1; i < listaTessere.getElementi(); i++) 
-					{
-						if(x==listaTessere.getTessera(i).getMatricola())
-						{
-							listaTessere.eliminaInPosizione(i);
-							listaTessere.salvaLista("tessere.bin");
-							System.out.println("Salvataggio completo");
-						}
-					}
+					listaTessere.eliminaInPosizione(x);
+					listaTessere.salvaLista("tessere.bin");
+					System.out.println("Salvataggio completo");
 				} 
 				catch (NumberFormatException e)
 				{
@@ -112,34 +141,122 @@ public class MainClass
 				catch (FileException e) 
 				{
 					System.out.println("Impossibile leggere dal file");
+				} 
+				catch (ClassNotFoundException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			}
+			
+			case 3:
+			{
+				try 
+				{
+					Tessera[] arrayList=listaTessere.toArray();
+					arrayList=listaTessere.ordinaAlfabetico(arrayList);
+					ListaTessere listaAlfabetico=new ListaTessere();
+					listaAlfabetico.convertiTessera(arrayList);
+					System.out.println(listaAlfabetico.toString());
+					
+				}
+				catch (TesseraException e)
+				{
+					System.out.println("Registro vuoto");
+				} 
+				catch (IOException e)
+				{
+					System.out.println("Impossibile leggere dal file");
+				} 
+				catch (FileException e) 
+				{
+					System.out.println("File non trovato");
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			}
+			
+			case 4:
+			{
+				try 
+				{
+					Tessera[] arrayList=listaTessere.toArray();
+					arrayList=listaTessere.ordinaAnzianita(arrayList);
+					ListaTessere listaAnzianita=new ListaTessere();
+					listaAnzianita.convertiTessera(arrayList);
+					System.out.println(listaAnzianita.toString());
+				}
+				catch (TesseraException e)
+				{
+					System.out.println("Registro vuoto");
+				} 
+				catch (IOException e)
+				{
+					System.out.println("Impossibile leggere dal file");
+				} 
+				catch (FileException e) 
+				{
+					System.out.println("File non trovato");
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			}
+			
+			case 5:
+			{
+				{
+					String x="";
+					String y="";
+					System.out.print("Inserisci il nome del tesserato: ");
+					ConsoleInput a=new ConsoleInput();
+					try 
+					{
+						x=a.readString();
+					} catch (IOException e)
+					{
+						System.out.println("Impossibile trovare il file");
+					}
+					System.out.print("Inserisci il cognome del tesserato: ");
+					ConsoleInput b=new ConsoleInput();
+					try
+					{
+						y=b.readString();
+					} catch (IOException e)
+					{
+						System.out.println("Impossibile trovare il file");
+					}
+					
+					listaTessere.visualizzaDatiTesserato(x, y);
 				}
 				break;
 			}
 				
-			/*case 6:
-				int nuovaQuota;
-				System.out.print("Inserisci il prezzo della nuova quota: ");
-				ConsoleInput n=new ConsoleInput();
+			case 6:
+			{
+				int x;
+				System.out.print("Inserisci la nuova quota annuale: ");
+				ConsoleInput y=new ConsoleInput();
 				try 
 				{
-					nuovaQuota=n.readInt();
-					do
-					{
-					listaTessere.getTessera().setQuotaAnnuale(nuovaQuota);
-					}while(listaTessere.getElementi()!=null)
+					x=y.readInt();
+					Tessera.setQuotaAnnuale(x);
 				} 
-				catch (TesseraException e) 
-				{
-					System.out.println(e.toString());
-				} 
-				catch (NumberFormatException e) 
+				catch (NumberFormatException e)
 				{
 					System.out.println("Il dato inserito non è valido");
 				} 
-				catch (IOException e)
+				catch (IOException e) 
 				{
-					System.out.println("File non trovato");
-				}*/
+					System.out.println("Impossibile trovare il file");
+				}
+				
+			}
+				
 				
 			case 7:
 				System.out.println(listaTessere.toString());

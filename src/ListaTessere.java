@@ -71,12 +71,11 @@ public class ListaTessere implements Serializable
 		return p.getInfo();		
 	}
 	
-	public void inserisciTessera(Tessera tessera) throws IOException, TesseraException, FileException
+	public void inserisciTessera(Tessera tessera) throws IOException, TesseraException, FileException, ClassNotFoundException
 	{
 		Nodo p=creaNodo(tessera, head);
 		head=p;
 		elementi++;
-		System.out.println("La quota annule da pagare è di "+this.getTessera(1).getQuotaAnnuale()+" €");
 		
 		esportaTessereCSV("tessere.txt");
 		
@@ -84,17 +83,18 @@ public class ListaTessere implements Serializable
 	
 	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException
 	{
-		TextFile file= new TextFile (nomeFile,'W');
-		String personaCSV;
 		Tessera tessera;
+		String personaCSV;
+		
+		TextFile file= new TextFile (nomeFile,'W');
+		
 		
 		for (int i = 1; i <= getElementi(); i++) 
 		{
 			tessera=getTessera(i);
-			personaCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"
-						+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
+			personaCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
 			file.toFile(personaCSV);
-		}
+		}					
 		file.closeFile();
 	}
 	
@@ -104,6 +104,7 @@ public class ListaTessere implements Serializable
 			throw new TesseraException("Lista vuota");
 		head=head.getLink();
 		elementi--;
+		salvaLista("tessere.bin");
 		esportaEliminatiCSV("eliminati.txt",posizione);
 		
 	}
@@ -121,51 +122,197 @@ public class ListaTessere implements Serializable
 		Nodo p=getLinkPosizione(elementi-1);
 		p.setLink(null);
 		elementi--;
+		salvaLista("tessere.bin");
 		esportaEliminatiCSV("eliminati.txt",posizione);
-
 	}
 	
-	public void eliminaInPosizione(int posizione) throws TesseraException, IOException, FileException
+	public void eliminaInPosizione(int matricola) throws TesseraException, IOException, FileException, ClassNotFoundException
 	{
-		if (posizione<=0 || posizione>elementi)
+		if (matricola<=0)
 			throw new TesseraException("Posizione non valida");
-		
 		if (elementi==0)
 			throw new TesseraException("Lista vuota");
-	
-		if (posizione==1)
+		
+		for (int i = 1; i < getElementi(); i++)
 		{
-			eliminaInTesta(posizione);
-			return;
+			if(i==1 && getTessera(i).getMatricola()==matricola)
+			{
+				eliminaInTesta(matricola);
+				return;
+			}
 		}
 		
-		if (posizione==elementi)
+		for (int i = 1; i < getElementi(); i++) 
 		{
-			eliminaInCoda(posizione);
-			return;
+			if (i==getElementi() && getTessera(i).getMatricola()==matricola) 
+			{
+				eliminaInTesta(matricola);
+				return;
+			}
 		}
 		
-		Nodo p;
-		p=getLinkPosizione(posizione);
-		Nodo precedente=getLinkPosizione(posizione-1);
-		precedente.setLink(p.getLink());
-		elementi--;
-		esportaEliminatiCSV("eliminati.txt",posizione);
+		FileInputStream file=new FileInputStream("tessere.bin");
+		ObjectInputStream reader= new ObjectInputStream(file);
+		
+		ListaTessere listaDaEliminare;
+		
+		listaDaEliminare=(ListaTessere)(reader.readObject());
+		file.close();
+		
+		for (int i = 1; i < listaDaEliminare.getElementi(); i++)
+		{
+			if (listaDaEliminare.getTessera(i).getMatricola()==matricola)
+			{
+				Nodo p;
+				p=getLinkPosizione(matricola);
+				Nodo precedente=getLinkPosizione(matricola-1);
+				precedente.setLink(p.getLink());
+				elementi--;
+				esportaEliminatiCSV("eliminati.txt",matricola);
+			}
+		}
+		
 	}
 	
 	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
 	{
-		TextFile file= new TextFile (nomeFile,'W');
-		String tesseratoCSV;
 		Tessera tessera;
+		String eliminatoCSV;
 		
-			tessera=getTessera(posizione);
-			tesseratoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"
-			+tessera.getInfo();
-			file.toFile(tesseratoCSV);
+		
+		TextFile file= new TextFile (nomeFile,'W');
+		
+		
+		tessera=getTessera(posizione);
+		eliminatoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
+		file.toFile(eliminatoCSV);
 		
 		file.closeFile();
 	}
+	
+	public Tessera[] toArray() throws TesseraException
+	{
+		Tessera[] arrayTessere=new Tessera[elementi];
+		Nodo n;
+		
+		for (int i = 0; i < elementi; i++) 
+		{
+			n=getLinkPosizione(i+1);
+			arrayTessere[i]=n.getInfo();
+		}
+		return arrayTessere;
+	}
+	
+	public void convertiTessera(Tessera[] tessera) throws TesseraException, IOException, FileException, ClassNotFoundException
+	{
+		for (int i = tessera.length; i > 0; i--) 
+			inserisciTessera(tessera[i-1]);
+	}
+	
+	public static int scambia(Tessera[] array, int p1, int p2)
+	{
+		Tessera c;
+		
+		if(p1<0 || p2<0 || p1>=array.length || p2>=array.length)
+			return -1;
+		else
+		{
+			c=array[p1];
+			array[p1]=array[p2];
+			array[p2]=c;
+			return 0;
+		}
+	}
+	
+	private static Tessera[] arrayCopia(Tessera[] array)
+	{
+		Tessera[] copia=new Tessera[array.length];
+		
+		for (int i = 0; i < copia.length; i++)
+		{
+			copia[i]=array[i];
+		}
+		return copia;
+	}
+	
+	public Tessera[] ordinaAnzianita(Tessera[] array)
+	{
+		Tessera[] copia=arrayCopia(array);
+		
+		for (int i = 0; i < copia.length-1; i++) 
+		{
+			for (int j = i+1; j < copia.length; j++) 
+			{
+				 if(copia[i].getDataNascita().isAfter(copia[j].getDataNascita()))
+					scambia(copia,i,j);
+			}
+		}
+		return copia;
+	}
+	
+	public Tessera[] ordinaAlfabetico(Tessera[] array)
+	{
+		Tessera[] copia=arrayCopia(array);
+		
+		for (int i = 0; i < copia.length-1; i++) 
+		{
+			
+			for (int j = i+1; j < copia.length; j++) 
+			{
+				if (copia[i].getNome().compareToIgnoreCase(copia[j].getNome())>0)
+					scambia(copia,i,j);
+			}
+		}
+		return copia;
+	}
+	
+	public void visualizzaDatiTesserato(String nome, String cognome)
+	{
+		Nodo p=head;
+		int x=0;
+		
+		while(p!=null)
+		{
+			if(p.getInfo().getNome().compareTo(nome)==0)
+			{
+				if(p.getInfo().getCognome().compareTo(cognome)==0)
+				{
+					System.out.println(p.getInfo().toString());
+					x++;
+				}
+			}
+			p=p.getLink();
+		}
+		
+	}
+	
+	public String[] caricaCSV(String nomeFile) throws IOException, FileException, EccezioneTextFileEOF
+	{
+		String tesseraCSV;
+		String[] elementiTessera;
+		String[] codiciFiscali = new String[50];
+		int i=0;
+		
+		TextFile file=new TextFile(nomeFile,'R');
+		
+		try
+		{
+			while(true)
+			{
+				tesseraCSV=file.fromFile();
+				elementiTessera=tesseraCSV.split(";");
+				codiciFiscali[i]=elementiTessera[3];
+				i++;
+			}
+		}
+		catch (EccezioneTextFileEOF e) 
+		{
+			
+		}
+		return codiciFiscali;
+	}
+	
+	
 	
 	//Serializzazione e deserializzazione
 	public void salvaLista(String nomeFile) throws IOException
