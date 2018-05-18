@@ -81,7 +81,7 @@ public class ListaTessere implements Serializable
 		
 	}
 	
-	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException
+	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException		//IMPOSSIBILE ELIMINARE IN CODA PERCHE' PUNTA NULL
 	{
 		Tessera tessera;
 		String personaCSV;
@@ -91,7 +91,7 @@ public class ListaTessere implements Serializable
 		
 		for (int i = 1; i <= getElementi(); i++) 
 		{
-			tessera=getTessera(i);
+			tessera=getLinkPosizione(i).getInfo();
 			personaCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
 			file.toFile(personaCSV);
 		}					
@@ -103,9 +103,9 @@ public class ListaTessere implements Serializable
 		if (elementi==0)
 			throw new TesseraException("Lista vuota");
 		head=head.getLink();
-		elementi--;
-		salvaLista("tessere.bin");
 		esportaEliminatiCSV("eliminati.txt",posizione);
+		elementi--;
+		
 		
 	}
 	
@@ -121,37 +121,52 @@ public class ListaTessere implements Serializable
 		
 		Nodo p=getLinkPosizione(elementi-1);
 		p.setLink(null);
-		elementi--;
-		salvaLista("tessere.bin");
 		esportaEliminatiCSV("eliminati.txt",posizione);
+		elementi--;
+		
 	}
 	
 	public void eliminaInPosizione(int matricola) throws TesseraException, IOException, FileException, ClassNotFoundException
 	{
-		if (matricola<=0)
-			throw new TesseraException("Posizione non valida");
+		boolean isElim=false;
 		if (elementi==0)
 			throw new TesseraException("Lista vuota");
 		
-		for (int i = 1; i < getElementi(); i++)
+		
+		for (int i = 1; i <= elementi; i++)
 		{
-			if(i==1 && getTessera(i).getMatricola()==matricola)
+			if((i==1) && (getLinkPosizione(i).getInfo().getMatricola()==matricola))
 			{
-				eliminaInTesta(matricola);
+				eliminaInCoda(matricola);
+				isElim=true;
 				return;
 			}
-		}
-		
-		for (int i = 1; i < getElementi(); i++) 
-		{
-			if (i==getElementi() && getTessera(i).getMatricola()==matricola) 
+			
+			if (i==getElementi() && getLinkPosizione(i).getInfo().getMatricola()==matricola) 
 			{
 				eliminaInTesta(matricola);
+				isElim=true;
 				return;
 			}
+			
+			if(isElim=false)
+			{
+				if(getLinkPosizione(i).getInfo().getMatricola()==matricola)
+				{
+					Nodo p;
+					p=getLinkPosizione(matricola);
+					Nodo precedente=getLinkPosizione(matricola-1);
+					precedente.setLink(p.getLink());
+					elementi--;
+					esportaEliminatiCSV("eliminati.txt",matricola);
+				}
+			}
+			
+			if(elementi>0 && getLinkPosizione(i).getInfo().getMatricola()==matricola)
+				i=0;
 		}
 		
-		FileInputStream file=new FileInputStream("tessere.bin");
+		/*FileInputStream file=new FileInputStream("tessere.bin");
 		ObjectInputStream reader= new ObjectInputStream(file);
 		
 		ListaTessere listaDaEliminare;
@@ -169,8 +184,9 @@ public class ListaTessere implements Serializable
 				precedente.setLink(p.getLink());
 				elementi--;
 				esportaEliminatiCSV("eliminati.txt",matricola);
+				
 			}
-		}
+		}*/
 		
 	}
 	
