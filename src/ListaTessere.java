@@ -5,22 +5,41 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+/**
+ * La classe ListaTessere consente di instanziare una lista che conterrà tessere. Gli attributi sono head e elementi. Head punta sempre al primo elemento della lista
+ * o nel caso fosse vuota punta a null, mentre elementi indica quante tessere sono presenti all'interno della lista.
+ * @author Alessandro Gelmi
+ *
+ */
 public class ListaTessere implements Serializable
 {
 	private Nodo head;
 	private int elementi;
 	
+	/**
+	 * Costruttore lista tessere. Serve per creare una nuova lista vuota, ovvero dove sono presenti 0 elementi
+	 */
 	public ListaTessere()
 	{
 		head=null;
 		elementi=0;
 	}
-	
+	/**
+	 * Metodo getter della classe ListaTessere che restituisce il numero di elementi presenti nella lista
+	 * @return Numero di elementi presenti nella lista
+	 */
 	public int getElementi()
 	{
 		return elementi;
 	}
 	
+	/**
+	 * Metodo privato della classe ListaTessere che consente di creare un nodo, formato da una parte informativa che conterrà una tessera e una parte link che conterrà l'indirizzo
+	 * al prossimo nodo della lista
+	 * @param Persona da inserire nella lista
+	 * @param Link del prossimo nodo
+	 * @return
+	 */
 	private Nodo creaNodo(Tessera persona, Nodo link)
 	{
 		Nodo nodo=new Nodo(persona);
@@ -28,6 +47,12 @@ public class ListaTessere implements Serializable
 		return nodo;
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che restituisce il link a cui punta un nodo in una determinata posizione
+	 * @param Posizione del nodo
+	 * @return Nodo contenente il link del nodo successivo
+	 * @throws TesseraException
+	 */
 	private Nodo getLinkPosizione(int posizione) throws TesseraException
 	{
 		if (elementi==0)
@@ -45,6 +70,10 @@ public class ListaTessere implements Serializable
 		return p;
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che restituisce una stringa contenente nome e cognome di tutte le tessere presenti nella lista
+	 * @return Stringa di tutte le tessere nella lista
+	 */
 	public String toString()
 	{
 		String risultato="Head";
@@ -58,7 +87,13 @@ public class ListaTessere implements Serializable
 		}
 		return risultato;
 	}
-		
+	
+	/**
+	 * Metodo getter della classe ListaTessere che restituisce una tessera appartentente alla lista
+	 * @param Posizione della tessera all'interno della lista
+	 * @return Le informazioni della tessera cercata
+	 * @throws TesseraException
+	 */
 	public Tessera getTessera (int posizione) throws TesseraException
 	{
 		if (elementi==0)
@@ -71,6 +106,14 @@ public class ListaTessere implements Serializable
 		return p.getInfo();		
 	}
 	
+	/**
+	 * Metodo della classe ListaTessera che consente di inserire una nuova tessera all'interno di una lista e di esportarla come file di testo CSV.
+	 * @param Tessera da inserire nella lista
+	 * @throws IOException
+	 * @throws TesseraException
+	 * @throws FileException
+	 * @throws ClassNotFoundException
+	 */
 	public void inserisciTessera(Tessera tessera) throws IOException, TesseraException, FileException, ClassNotFoundException
 	{
 		Nodo p=creaNodo(tessera, head);
@@ -81,6 +124,13 @@ public class ListaTessere implements Serializable
 		
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di esportare le tessere su un file di testo CSV.
+	 * @param Il nome del file sul qule si vogliono esportare le tessere
+	 * @throws IOException
+	 * @throws TesseraException
+	 * @throws FileException
+	 */
 	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException		//IMPOSSIBILE ELIMINARE IN CODA PERCHE' PUNTA NULL
 	{
 		Tessera tessera;
@@ -98,17 +148,28 @@ public class ListaTessere implements Serializable
 		file.closeFile();
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di eliminare ,tramite il numero di matricola, una tessera che si trova in testa, ovvero in prima posizione
+	 * @param Matricola della tessera da eliminare 
+	 * @throws TesseraException
+	 * @throws IOException
+	 * @throws FileException
+	 */
 	public void eliminaInTesta(int posizione) throws TesseraException, IOException, FileException
 	{
 		if (elementi==0)
 			throw new TesseraException("Lista vuota");
 		head=head.getLink();
-		esportaEliminatiCSV("eliminati.txt",posizione);
-		elementi--;
-		
-		
+		elementi--;	
 	}
 	
+	/**
+	 *  Metodo della classe ListaTessere che consente di eliminare ,tramite il numero di matricola, una tessera che si trova in coda, ovvero in ultima posizione
+	 * @param Matricola della tessera da eliminare
+	 * @throws TesseraException
+	 * @throws FileException
+	 * @throws IOException
+	 */
 	public void eliminaInCoda(int posizione) throws TesseraException, FileException, IOException
 	{
 		if (elementi==0)
@@ -121,11 +182,18 @@ public class ListaTessere implements Serializable
 		
 		Nodo p=getLinkPosizione(elementi-1);
 		p.setLink(null);
-		esportaEliminatiCSV("eliminati.txt",posizione);
 		elementi--;
-		
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di eliminare una tessera tramite il suo numero di matricola. Se è presente un solo emento si eliminerà in testa, se sono 
+	 * presenti tante tessere quanti sono gli elementi della lista si eliminerà in coda. Completata l'eliminazione si andrà a salvare la tessera eliminata su un file di testo CSV.
+	 * @param Matricola della tessera da eliminare
+	 * @throws TesseraException
+	 * @throws IOException
+	 * @throws FileException
+	 * @throws ClassNotFoundException
+	 */
 	public void eliminaInPosizione(int matricola) throws TesseraException, IOException, FileException, ClassNotFoundException
 	{
 		boolean isElim=false;
@@ -137,13 +205,15 @@ public class ListaTessere implements Serializable
 		{
 			if((i==1) && (getLinkPosizione(i).getInfo().getMatricola()==matricola))
 			{
-				eliminaInCoda(matricola);
+				esportaEliminatiCSV("eliminati.txt",matricola);
+				eliminaInTesta(matricola);
 				isElim=true;
 				return;
 			}
 			
 			if (i==getElementi() && getLinkPosizione(i).getInfo().getMatricola()==matricola) 
 			{
+				esportaEliminatiCSV("eliminati.txt",matricola);
 				eliminaInTesta(matricola);
 				isElim=true;
 				return;
@@ -165,39 +235,22 @@ public class ListaTessere implements Serializable
 			if(elementi>0 && getLinkPosizione(i).getInfo().getMatricola()==matricola)
 				i=0;
 		}
-		
-		/*FileInputStream file=new FileInputStream("tessere.bin");
-		ObjectInputStream reader= new ObjectInputStream(file);
-		
-		ListaTessere listaDaEliminare;
-		
-		listaDaEliminare=(ListaTessere)(reader.readObject());
-		file.close();
-		
-		for (int i = 1; i < listaDaEliminare.getElementi(); i++)
-		{
-			if (listaDaEliminare.getTessera(i).getMatricola()==matricola)
-			{
-				Nodo p;
-				p=getLinkPosizione(matricola);
-				Nodo precedente=getLinkPosizione(matricola-1);
-				precedente.setLink(p.getLink());
-				elementi--;
-				esportaEliminatiCSV("eliminati.txt",matricola);
-				
-			}
-		}*/
-		
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di esportare le tessere eliminate su un file di testo CSV. Sul file verrà memorizzata l'intera tessera.
+	 * @param Nome del file su cui esportare le tessere
+	 * @param Matricola della tessera da eliminare
+	 * @throws IOException
+	 * @throws TesseraException
+	 * @throws FileException
+	 */
 	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
 	{
 		Tessera tessera;
 		String eliminatoCSV;
 		
-		
 		TextFile file= new TextFile (nomeFile,'W');
-		
 		
 		tessera=getTessera(posizione);
 		eliminatoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
@@ -206,6 +259,11 @@ public class ListaTessere implements Serializable
 		file.closeFile();
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di trasformare una lista contente tessere in un array contenente le stesse tessere della lista
+	 * @return Array di tessere
+	 * @throws TesseraException
+	 */
 	public Tessera[] toArray() throws TesseraException
 	{
 		Tessera[] arrayTessere=new Tessera[elementi];
@@ -219,12 +277,27 @@ public class ListaTessere implements Serializable
 		return arrayTessere;
 	}
 	
+	/**
+	 * Inserisce le tessere di un array in una lista.
+	 * @param Array di tessere
+	 * @throws TesseraException
+	 * @throws IOException
+	 * @throws FileException
+	 * @throws ClassNotFoundException
+	 */
 	public void convertiTessera(Tessera[] tessera) throws TesseraException, IOException, FileException, ClassNotFoundException
 	{
 		for (int i = tessera.length; i > 0; i--) 
 			inserisciTessera(tessera[i-1]);
 	}
 	
+	/**
+	 * Metodo dell classe ListaTessere che consente di scambaire le posizioni di due tessere all'interno di un array.
+	 * @param Array di tessere
+	 * @param Posizione 1 da scambiare
+	 * @param Posizione 2 da scambiare
+	 * @return 0
+	 */
 	public static int scambia(Tessera[] array, int p1, int p2)
 	{
 		Tessera c;
@@ -240,6 +313,11 @@ public class ListaTessere implements Serializable
 		}
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di creare una copia di un altro array
+	 * @param Array di tessere da copiare
+	 * @return Array di tessere copiato
+	 */
 	private static Tessera[] arrayCopia(Tessera[] array)
 	{
 		Tessera[] copia=new Tessera[array.length];
@@ -251,6 +329,11 @@ public class ListaTessere implements Serializable
 		return copia;
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di ordinare gli utenti delle tessere, presenti in un array, in ordine di anzianità ovvero dal più vecchio al più giovane 
+	 * @param Array di tessere da ordinare
+	 * @return Array di copia con al proprio interno le tessere ordinate
+	 */
 	public Tessera[] ordinaAnzianita(Tessera[] array)
 	{
 		Tessera[] copia=arrayCopia(array);
@@ -266,6 +349,11 @@ public class ListaTessere implements Serializable
 		return copia;
 	}
 	
+	/**
+	 * Metodo della classe ListaTessere che consente di ordinare gli utenti delle tessere, presenti in un array, in ordine alfabetico dalla A alla Z
+	 * @param Array di tessere da ordinare
+	 * @return Array di copia con al proprio interno le tessere ordinate
+	 */
 	public Tessera[] ordinaAlfabetico(Tessera[] array)
 	{
 		Tessera[] copia=arrayCopia(array);
@@ -281,7 +369,12 @@ public class ListaTessere implements Serializable
 		}
 		return copia;
 	}
-	
+
+	/**
+	 * Metodo della classe ListaTessere che consente di visualizzare le informazioni di una tessera inserendo nome e cognome.
+	 * @param Nome del tesserato
+	 * @param Cognome del tesserato
+	 */
 	public void visualizzaDatiTesserato(String nome, String cognome)
 	{
 		Nodo p=head;
@@ -302,7 +395,16 @@ public class ListaTessere implements Serializable
 		
 	}
 	
-	public String[] caricaCSV(String nomeFile) throws IOException, FileException, EccezioneTextFileEOF
+	/**
+	 * Meotodo della classe ListaTessere che consente di caricare un file di testo CSV e creare un array contenente tutti i codici fiscali delle tessere gia presenti nel file su cui
+	 * sono memorizzate le tessere
+	 * @param Nome del file da cui caricare i codici fiscali
+	 * @return Array contenente i codici fiscali
+	 * @throws IOException
+	 * @throws FileException
+	 * @throws EccezioneTextFileEOF
+	 */
+	public String[] caricaCodiciFiscali(String nomeFile) throws IOException, FileException, EccezioneTextFileEOF
 	{
 		String tesseraCSV;
 		String[] elementiTessera;
@@ -329,8 +431,12 @@ public class ListaTessere implements Serializable
 	}
 	
 	
-	
 	//Serializzazione e deserializzazione
+	/**
+	 * Metodo della classe Lista Tessere che consente di serializzare ovvero di salvare una lista su un file binario.
+	 * @param Nome del file binario su cui memorizzare la lista
+	 * @throws IOException
+	 */
 	public void salvaLista(String nomeFile) throws IOException
 	{
 		FileOutputStream file =new FileOutputStream(nomeFile);
@@ -340,6 +446,13 @@ public class ListaTessere implements Serializable
 		file.close();
 	}
 	
+	/**
+	 * Metodo della classe Lista Tessere che consente di deserializzare ovvero di caricare da un file binario una lista di tessere.
+	 * @param Nome del file dal quale caricare le tessere
+	 * @return Lista contente le tessere caricate
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public ListaTessere caricaLista(String nomeFile) throws IOException, ClassNotFoundException
 	{
 		FileInputStream file=new FileInputStream(nomeFile);

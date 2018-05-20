@@ -44,7 +44,15 @@ public class MainClass
 					boolean isElim = false;
 					Tessera t=new Tessera();
 					System.out.print("Inserisci la matricola: ");
-					t.setMatricola(tastiera.readInt());
+					try
+					{
+						t.setMatricola(tastiera.readInt());
+					}
+					catch (NumberFormatException e)
+					{
+						System.out.println("Il valore inserito non è numerico! Reinseriscilo");
+						break;
+					} 
 					System.out.print("Inserisci il nome: ");
 					t.setNome(tastiera.readString());
 					System.out.print("Inserisci il cognome: ");
@@ -52,7 +60,7 @@ public class MainClass
 					System.out.print("Inserisci il codice fiscale: ");
 					t.setCodiceFiscale(tastiera.readString());
 					System.out.print("Inserisci anno di nascita:");
-					anno=(tastiera.readInt());
+					anno=tastiera.readInt();
 					System.out.print("Inserisci mese di nascita:");
 					m=(tastiera.readInt());
 					System.out.print("Inserisci giorno di nascita:");
@@ -62,11 +70,10 @@ public class MainClass
 					t.setInfo(tastiera.readString());
 					System.out.println("La quota annule da pagare è di "+t.getQuotaAnnuale()+" €");
 					
-					
 					String[] elim = null;
 					try 
 					{
-						elim = listaTessere.caricaCSV("eliminati.txt");
+						elim = listaTessere.caricaCodiciFiscali("eliminati.txt");
 						
 						for (int i = 0; i < elim.length; i++) 
 						{
@@ -107,8 +114,8 @@ public class MainClass
 				catch (FileException e)
 				{
 					System.out.println("Impossibile scrivere sul file");
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
+				} catch (ClassNotFoundException e) 
+				{
 					e.printStackTrace();
 				} 
 				break;
@@ -144,7 +151,6 @@ public class MainClass
 				} 
 				catch (ClassNotFoundException e) 
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				break;
@@ -172,8 +178,9 @@ public class MainClass
 				catch (FileException e) 
 				{
 					System.out.println("File non trovato");
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
+				} 
+				catch (ClassNotFoundException e) 
+				{
 					e.printStackTrace();
 				}
 				break;
@@ -200,8 +207,9 @@ public class MainClass
 				catch (FileException e) 
 				{
 					System.out.println("File non trovato");
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
+				}
+				catch (ClassNotFoundException e) 
+				{
 					e.printStackTrace();
 				}
 				break;
