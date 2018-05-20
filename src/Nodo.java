@@ -1,5 +1,12 @@
 import java.io.Serializable;
 
+/**
+ * La classe nodo rappresenta un elemento di una lista. Risulta composta da due parti: una parte informativa che contiene il reference ad un oggetto che contiene le informazioni
+ * sugli elementi di una lista e una seconda parte chiamata link che contiene il reference alal nodo successivo della lista.
+ * 
+ * @author Ale
+ *
+ */
 public class Nodo implements Serializable
 {
 	private Tessera info;
