@@ -107,7 +107,7 @@ public class ListaTessere implements Serializable
 	}
 	
 	/**
-	 * Metodo della classe ListaTessera che consente di inserire una nuova tessera all'interno di una lista e di esportarla come file di testo CSV.
+	 * Metodo della classe ListaTessera che consente di inserire una nuova tessera all'interno di una lista.
 	 * @param Tessera da inserire nella lista
 	 * @throws IOException
 	 * @throws TesseraException
@@ -119,32 +119,27 @@ public class ListaTessere implements Serializable
 		Nodo p=creaNodo(tessera, head);
 		head=p;
 		elementi++;
-		
-		esportaTessereCSV("tessere.txt");
-		
 	}
 	
 	/**
-	 * Metodo della classe ListaTessere che consente di esportare le tessere su un file di testo CSV.
-	 * @param Il nome del file sul qule si vogliono esportare le tessere
+	 * Metodo della classe ListaTessere che consente di esportare le tessere eliminate su un file di testo CSV. Sul file verrà memorizzata l'intera tessera.
+	 * @param Nome del file su cui esportare le tessere
+	 * @param Matricola della tessera da eliminare
 	 * @throws IOException
 	 * @throws TesseraException
 	 * @throws FileException
 	 */
-	public void esportaTessereCSV (String nomeFile) throws IOException, TesseraException, FileException		//IMPOSSIBILE ELIMINARE IN CODA PERCHE' PUNTA NULL
+	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
 	{
 		Tessera tessera;
-		String personaCSV;
+		String eliminatoCSV;
 		
 		TextFile file= new TextFile (nomeFile,'W');
 		
+		tessera=getTessera(posizione);
+		eliminatoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
+		file.toFile(eliminatoCSV);
 		
-		for (int i = 1; i <= getElementi(); i++) 
-		{
-			tessera=getLinkPosizione(i).getInfo();
-			personaCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
-			file.toFile(personaCSV);
-		}					
 		file.closeFile();
 	}
 	
@@ -235,28 +230,6 @@ public class ListaTessere implements Serializable
 			if(elementi>0 && getLinkPosizione(i).getInfo().getMatricola()==matricola)
 				i=0;
 		}
-	}
-	
-	/**
-	 * Metodo della classe ListaTessere che consente di esportare le tessere eliminate su un file di testo CSV. Sul file verrà memorizzata l'intera tessera.
-	 * @param Nome del file su cui esportare le tessere
-	 * @param Matricola della tessera da eliminare
-	 * @throws IOException
-	 * @throws TesseraException
-	 * @throws FileException
-	 */
-	public void esportaEliminatiCSV (String nomeFile, int posizione) throws IOException, TesseraException, FileException
-	{
-		Tessera tessera;
-		String eliminatoCSV;
-		
-		TextFile file= new TextFile (nomeFile,'W');
-		
-		tessera=getTessera(posizione);
-		eliminatoCSV=tessera.getMatricola()+";"+tessera.getNome()+";"+tessera.getCognome()+";"+tessera.getCodiceFiscale()+";"+tessera.getDataNascita()+";"+tessera.getInfo();
-		file.toFile(eliminatoCSV);
-		
-		file.closeFile();
 	}
 	
 	/**
