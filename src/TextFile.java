@@ -16,7 +16,7 @@ public class TextFile
 		if (mode=='W' || mode=='w')
 		{
 			this.mode='W';
-			writer=new BufferedWriter(new FileWriter(nomeFile));  //per scrivere in append,ovvero senza sovrascrivere aggiungo nella parentesi ",true"
+			writer=new BufferedWriter(new FileWriter(nomeFile,true));  //per scrivere in append,ovvero senza sovrascrivere aggiungo nella parentesi ",true"
 		}
 		else
 			reader=new BufferedReader(new FileReader(nomeFile));

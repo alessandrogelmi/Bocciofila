@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 
 import javax.naming.directory.ModificationItem;
@@ -40,7 +41,9 @@ public class MainClass
 			{
 				try 
 				{
-					int anno,m,g;
+					boolean nomeCorr=false;
+					int anno = 2000,m=0,g=0;
+					boolean dataCorretta=false;
 					boolean isElim = false;
 					Tessera t=new Tessera();
 					System.out.print("Inserisci la matricola: ");
@@ -53,22 +56,85 @@ public class MainClass
 						System.out.println("Il valore inserito non è numerico! Reinseriscilo");
 						break;
 					} 
+					
+					do
+					{
+					
 					System.out.print("Inserisci il nome: ");
-					t.setNome(tastiera.readString());
+					String nome=tastiera.readString();
+					for (int j = 0; j < nome.length(); j++)
+					{
+						if(nome.charAt(j)>'a' && nome.charAt(j)<'z' || nome.charAt(j)>'A' && nome.charAt(j)<'Z')
+						{
+							t.setNome(nome);
+							nomeCorr=true;
+							break;
+						}
+					}
+					}while(nomeCorr==false);
+					
+					nomeCorr=false;
+					do
+					{
 					System.out.print("Inserisci il cognome: ");
-					t.setCognome(tastiera.readString());
+					String cognome=tastiera.readString();
+					for (int j = 0; j < cognome.length(); j++)
+					{
+						if(cognome.charAt(j)>'a' && cognome.charAt(j)<'z' || cognome.charAt(j)>'A' && cognome.charAt(j)<'Z')
+						{
+							t.setCognome(cognome);
+							nomeCorr=true;
+							break;
+						}
+					}
+					}while(nomeCorr==false);
+					
 					System.out.print("Inserisci il codice fiscale: ");
 					t.setCodiceFiscale(tastiera.readString());
-					System.out.print("Inserisci anno di nascita:");
-					anno=tastiera.readInt();
-					System.out.print("Inserisci mese di nascita:");
-					m=(tastiera.readInt());
-					System.out.print("Inserisci giorno di nascita:");
-					g=(tastiera.readInt());
-					t.setDataNascita(LocalDate.of(anno,m,g));
+					
+					do 
+					{
+						dataCorretta=true;
+						try 
+						{
+							System.out.print("Inserisci anno di nascita:");
+							anno=tastiera.readInt();
+							System.out.print("Inserisci mese di nascita:");
+							m=(tastiera.readInt());
+							System.out.print("Inserisci giorno di nascita:");
+							g=(tastiera.readInt());
+							
+						}
+						catch(NumberFormatException e)
+						{
+							System.out.println("Data non valida");
+						}
+						catch(IOException e)
+						{
+							System.out.println("Impossibile leggere da tastiera");
+						}
+						if(anno<=0) 
+						{
+							System.out.println("La data inserita non è valida! Reinseriscila.");
+							dataCorretta=false;
+							continue;
+						}
+						
+						try
+						{
+							t.setDataNascita(LocalDate.of(anno, m, g));
+						}
+						catch(DateTimeException  e)
+						{
+							System.out.println("La data inserita non è valida! Reinseriscila.");
+							dataCorretta=false;
+							continue;
+						}
+						
+					} while (dataCorretta==false);
+					
 					System.out.print("Inserisci l'info (nuova/rinnovo): ");
 					t.setInfo(tastiera.readString());
-					System.out.println("La quota annule da pagare è di "+t.getQuotaAnnuale()+" €");
 					
 					String[] elim = null;
 					try 
@@ -96,6 +162,7 @@ public class MainClass
 					
 					if (isElim==false) 
 					{
+						System.out.println("La quota annule da pagare è di "+t.getQuotaAnnuale()+" €");
 						listaTessere.inserisciTessera(t);
 						System.out.println("Tessera aggiunta con successo");
 						listaTessere.salvaLista("tessere.bin");
@@ -239,7 +306,12 @@ public class MainClass
 						System.out.println("Impossibile trovare il file");
 					}
 					
-					listaTessere.visualizzaDatiTesserato(x, y);
+					try {
+						listaTessere.visualizzaDatiTesserato(x, y);
+					} catch (TesseraException e) 
+					{
+						System.out.println(e.toString());
+					}
 				}
 				break;
 			}
@@ -265,15 +337,17 @@ public class MainClass
 				
 			}
 				
-				
 			case 7:
 				System.out.println(listaTessere.toString());
 				
 			case 0:
+			{
 				break;
-			
 			}
-			
+				
+			}
+			if (sceltaMenu<0 || sceltaMenu>7)
+				System.out.println("Voce del menu insesistente");
 		} while (sceltaMenu!=0);
 
 	}

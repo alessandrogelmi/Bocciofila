@@ -62,11 +62,11 @@ public class Tessera implements Serializable
 	{
 		
 		setMatricola(0);
-		setNome(" ");
-		setCognome(" ");
-		setCodiceFiscale(" ");
+		setNome("");
+		setCognome("");
+		setCodiceFiscale("");
 		setDataNascita(null);
-		setInfo(" ");
+		setInfo("");
 	}
 	
 	//getter setter

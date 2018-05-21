@@ -201,7 +201,7 @@ public class ListaTessere implements Serializable
 			if((i==1) && (getLinkPosizione(i).getInfo().getMatricola()==matricola))
 			{
 				esportaEliminatiCSV("eliminati.txt",matricola);
-				eliminaInTesta(matricola);
+				eliminaInCoda(matricola);
 				isElim=true;
 				return;
 			}
@@ -347,11 +347,11 @@ public class ListaTessere implements Serializable
 	 * Metodo della classe ListaTessere che consente di visualizzare le informazioni di una tessera inserendo nome e cognome.
 	 * @param Nome del tesserato
 	 * @param Cognome del tesserato
+	 * @throws TesseraException 
 	 */
-	public void visualizzaDatiTesserato(String nome, String cognome)
+	public void visualizzaDatiTesserato(String nome, String cognome) throws TesseraException
 	{
 		Nodo p=head;
-		int x=0;
 		
 		while(p!=null)
 		{
@@ -360,11 +360,12 @@ public class ListaTessere implements Serializable
 				if(p.getInfo().getCognome().compareTo(cognome)==0)
 				{
 					System.out.println(p.getInfo().toString());
-					x++;
+					return;
 				}
 			}
 			p=p.getLink();
 		}
+		throw new TesseraException("Tessera non trovata");
 		
 	}
 	
