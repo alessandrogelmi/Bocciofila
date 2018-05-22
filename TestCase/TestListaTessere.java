@@ -81,16 +81,6 @@ class TestListaTessere {
 		assertTrue("Elimina in posizione", l1.getElementi()==1);
 	}
 	
-	@Test 
-	public void testToArray() throws ClassNotFoundException, IOException, TesseraException, FileException
-	{
-		ListaTessere l1=new ListaTessere();
-		Tessera t1=new Tessera();
-		l1.inserisciTessera(t1);
-		Tessera[] arrayTessere=new Tessera[5];
-		l1.toArray();
-		assertTrue("To Array", l1.getTessera(1)==arrayTessere.);
-	}
 	
 
 }
